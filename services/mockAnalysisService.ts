@@ -26,32 +26,38 @@ export const mockAnalyzeProduct = async (url: string): Promise<AnalysisResult> =
     };
 
     // Simple keyword detection to simulate AI analysis
-    const suspiciousKeywords = ['free', 'offer', 'win', 'cheap', 'discount', '70-off', 'urgent', 'buy-now', 'store-closing', 'clearance'];
+    const suspiciousKeywords = ['free', 'offer', 'win', 'cheap', 'discount', '70-off', 'urgent', 'buy-now', 'store-closing', 'clearance', 'jackpot', 'lucky'];
     const hasSuspiciousKeywords = suspiciousKeywords.some(k => urlLower.includes(k));
-    const isMajorPlatform = urlLower.includes('amazon') || urlLower.includes('flipkart') || urlLower.includes('myntra') || urlLower.includes('apple') || urlLower.includes('bestbuy') || urlLower.includes('nike') || urlLower.includes('atomberg');
+    
+    // Expanded Whitelist for Major Platforms (Global & Regional)
+    const isMajorPlatform = [
+        'amazon', 'flipkart', 'myntra', 'apple', 'bestbuy', 'nike', 'atomberg', 
+        'meesho', 'ajio', 'tatacliq', 'jiomart', 'shopsy', 'nykaa', 'croma', 
+        'reliance', 'walmart', 'target', 'ebay'
+    ].some(platform => urlLower.includes(platform));
 
     if (isMajorPlatform) {
-        score = 92;
+        score = 94; // Higher confidence for known giants
         verdict = 'Genuine';
-        advice = "This looks like a Safe Product! The seller is verified and the listing details match professional standards.";
+        advice = "Safe Product. This is a verified listing from a major trusted retailer.";
         breakdown = {
-            reviews: ["Over 1,000+ verified reviews found.", "Review distribution looks organic."],
-            sentiment: ["Sentiment aligns perfectly with the 4.5 star rating.", "No bot patterns detected."],
-            price: ["Price aligns with market average for this category.", "Discount is realistic (10-15%)."],
-            seller: ["Sold by a verified major retailer or official brand store.", "High positive feedback score."],
-            description: ["Clear, professional specifications.", "Includes valid warranty information."]
+            reviews: ["High volume of verified reviews detected.", "Review distribution follows organic patterns."],
+            sentiment: ["Sentiment analysis indicates genuine buyer satisfaction.", "No bot-like repetition found."],
+            price: ["Price aligns with market standards for this category.", "Discount structure is realistic."],
+            seller: ["Sold by an official partner or highly-rated seller.", "Platform offers buyer protection."],
+            description: ["Detailed, professional product specifications.", "Includes valid warranty/return policy information."]
         };
     } 
-    else if (hasSuspiciousKeywords || urlLower.length > 70 || urlLower.includes('myshopify')) {
+    else if (hasSuspiciousKeywords || urlLower.length > 80 || urlLower.includes('myshopify')) {
         score = 45;
         verdict = 'Fake';
-        advice = "Please do not buy this. The price is too good to be true, and it fits the pattern of common scams.";
+        advice = "High Risk Detected. The URL contains keywords often associated with scams or temporary stores.";
         breakdown = {
-            reviews: ["Many reviews are very short and repetitive.", "Possible copy-paste review patterns detected."],
-            sentiment: ["Mismatch detected between enthusiastic text and generic phrasing."],
-            price: ["Product price is much lower (>70%) than average.", "Extremely low prices are often linked to scams."],
-            seller: ["Seller account is new or has no history.", "Missing contact details."],
-            description: ["Description contains generic or copied content.", "No clear brand or warranty info."]
+            reviews: ["Reviews (if any) look repetitive or fake.", "Possible copy-paste patterns."],
+            sentiment: ["Description uses high-pressure sales tactics.", "Generic phrasing detected."],
+            price: ["Price is suspiciously low (>60% off).", "Too good to be true."],
+            seller: ["Seller identity is hidden or unverified.", "No physical address found."],
+            description: ["Description matches known scam templates.", "Poor grammar or spelling."]
         };
     } 
     else {
