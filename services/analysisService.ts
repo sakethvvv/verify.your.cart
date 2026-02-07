@@ -6,17 +6,10 @@ import { mockAnalyzeProduct } from "./mockAnalysisService";
  * Analyzes a product URL to determine if it's fake or genuine.
  * Uses Google Gemini AI with Search Grounding for accuracy.
  */
-export const analyzeProduct = async (
-  url: string,
-  userApiKey?: string
-): Promise<AnalysisResult> => {
-
+export const analyzeProduct = async (url: string): Promise<AnalysisResult> => {
+  
   // ✅ Correct way for Vite + Cloudflare deployment
-  const envKey = import.meta.env.VITE_API_KEY;
-
-  // 1. Determine which API Key to use
-  // Priority: userApiKey -> Vite env -> fallback
-  const apiKey = userApiKey || envKey;
+  const apiKey = import.meta.env.VITE_API_KEY;
 
   if (!apiKey || apiKey === "PLACEHOLDER_API_KEY" || apiKey.trim() === "") {
     console.warn("API Key missing. Using Mock Analysis Service.");
@@ -53,7 +46,7 @@ Return STRICT JSON only. No extra explanation outside JSON.
 `;
 
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-pro", // ✅ best stable model for accuracy
+      model: "gemini-1.5-pro",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
         tools: [{ googleSearch: {} }],
@@ -78,10 +71,22 @@ Return STRICT JSON only. No extra explanation outside JSON.
           },
         },
         safetySettings: [
-          { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
-          { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
-          { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
-          { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH },
+          {
+            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+            threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+          },
         ],
       },
     });
